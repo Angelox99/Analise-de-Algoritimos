@@ -31,6 +31,9 @@ df["tipo_entrada"] = df["entrada"].apply(extrair_tipo)
 def gerar_grafico(tipo, metric):
     df_filtrado = df[df["tipo_entrada"] == tipo].copy()
 
+    # Adiciona coluna com algoritmo + processador
+    df_filtrado["algoritmo_proc"] = df_filtrado["algoritmo"] + " (" + df_filtrado["processador"] + ")"
+
     # Ordenar por tamanho de entrada
     df_filtrado = df_filtrado.sort_values(by="tamanho_entrada")
 
@@ -38,15 +41,16 @@ def gerar_grafico(tipo, metric):
         df_filtrado,
         x="tamanho_entrada",
         y=metric,
-        color="algoritmo",
+        color="algoritmo_proc",
         markers=True,
         title=f"{metric} - {tipo}",
         labels={
             "tamanho_entrada": "Tamanho da Entrada",
             metric: f"{metric}",
-            "algoritmo": "Algoritmo"
+            "algoritmo_proc": "Algoritmo (Processador)"
         }
     )
+    return fig
 
     # Aumentar a resolução do gráfico definindo largura e altura
     fig.update_layout(
@@ -79,19 +83,19 @@ app.layout = dbc.Container([
             dcc.Graph(id="grafico-random-tempo"),
             dcc.Graph(id="grafico-random-cpu"),
             dcc.Graph(id="grafico-random-memoria"),
-            dcc.Graph(id="grafico-random-num-iter")
+            dcc.Graph(id="grafico-random-num-comp")
         ]),
         dbc.Tab(label="Decrescente", children=[
             dcc.Graph(id="grafico-decrescente-tempo"),
             dcc.Graph(id="grafico-decrescente-cpu"),
             dcc.Graph(id="grafico-decrescente-memoria"),
-            dcc.Graph(id="grafico-decrescente-num-iter")
+            dcc.Graph(id="grafico-decrescente-num-comp")
         ]),
         dbc.Tab(label="Ordenado", children=[
             dcc.Graph(id="grafico-ordenado-tempo"),
             dcc.Graph(id="grafico-ordenado-cpu"),
             dcc.Graph(id="grafico-ordenado-memoria"),
-            dcc.Graph(id="grafico-ordenado-num-iter")
+            dcc.Graph(id="grafico-ordenado-num-comp")
         ])
     ])
 ], fluid=True)
@@ -105,15 +109,15 @@ app.layout = dbc.Container([
     Output("grafico-random-tempo", "figure"),
     Output("grafico-random-cpu", "figure"),
     Output("grafico-random-memoria", "figure"),
-    Output("grafico-random-num-iter", "figure"),
+    Output("grafico-random-num-comp", "figure"),
     Output("grafico-decrescente-tempo", "figure"),
     Output("grafico-decrescente-cpu", "figure"),
     Output("grafico-decrescente-memoria", "figure"),
-    Output("grafico-decrescente-num-iter", "figure"),
+    Output("grafico-decrescente-num-comp", "figure"),
     Output("grafico-ordenado-tempo", "figure"),
     Output("grafico-ordenado-cpu", "figure"),
     Output("grafico-ordenado-memoria", "figure"),
-    Output("grafico-ordenado-num-iter", "figure"),
+    Output("grafico-ordenado-num-comp", "figure"),
     Input("grafico-random-tempo", "id")  # Este é apenas um trigger para a atualização
 )
 def atualizar_graficos(_):
@@ -121,17 +125,17 @@ def atualizar_graficos(_):
     fig_random_tempo = gerar_grafico("Random", "tempo_execucao_medio_s")
     fig_random_cpu = gerar_grafico("Random", "cpu_media_percent")
     fig_random_memoria = gerar_grafico("Random", "memoria_media_MB")
-    fig_random_num_iter = gerar_grafico("Random", "interacoes_media")
+    fig_random_num_iter = gerar_grafico("Random", "comparacoes_media")
     
     fig_decrescente_tempo = gerar_grafico("Decrescente", "tempo_execucao_medio_s")
     fig_decrescente_cpu = gerar_grafico("Decrescente", "cpu_media_percent")
     fig_decrescente_memoria = gerar_grafico("Decrescente", "memoria_media_MB")
-    fig_decrescente_num_iter = gerar_grafico("Decrescente", "interacoes_media")
+    fig_decrescente_num_iter = gerar_grafico("Decrescente", "comparacoes_media")
     
     fig_ordenado_tempo = gerar_grafico("Ordenado", "tempo_execucao_medio_s")
     fig_ordenado_cpu = gerar_grafico("Ordenado", "cpu_media_percent")
     fig_ordenado_memoria = gerar_grafico("Ordenado", "memoria_media_MB")
-    fig_ordenado_num_iter = gerar_grafico("Ordenado", "interacoes_media")
+    fig_ordenado_num_iter = gerar_grafico("Ordenado", "comparacoes_media")
     
     return (fig_random_tempo, fig_random_cpu, fig_random_memoria, fig_random_num_iter,
             fig_decrescente_tempo, fig_decrescente_cpu, fig_decrescente_memoria, fig_decrescente_num_iter,

@@ -20,7 +20,7 @@ class Benchmark:
     def __init__(self, bin_dir, entrada_dir):
         self.bin_dir = bin_dir
         self.entrada_dir = entrada_dir
-        self.processador = platform.processor() or platform.uname().machine
+        self.processador = platform.uname().processor
 
     def run_test(self, algoritmo, arquivo_entrada, num_execucoes=13):
         bin_path = os.path.join(self.bin_dir, algoritmo)
@@ -38,10 +38,12 @@ class Benchmark:
         mem_maximas = []
         mem_minimas = []
         cpu_medias = []
-        interacoes_lista = []
+        comparacoes = []
 
         for execucao in range(1, num_execucoes + 1):
             logging.info(f"➡️ Executando {algoritmo} | Entrada: {arquivo_entrada} | Execução: {execucao}")
+
+            inicio = time.time()
 
             process = subprocess.Popen(
                 [bin_path, entrada_path],
@@ -56,13 +58,11 @@ class Benchmark:
             memoria_usos = []
             cpu_usos = []
 
-            inicio = time.time()
-
             while process.poll() is None:
                 if not proc.is_running():
                     logging.warning(f"⚠️ Processo {pid} terminou antes da coleta.")
                     break
-            
+
                 try:
                     mem_info = proc.memory_info().rss / (1024 * 1024)  # Memória MB
                     cpu = proc.cpu_percent(interval=0.1)               # CPU %
@@ -76,7 +76,7 @@ class Benchmark:
 
             stdout, stderr = process.communicate()
 
-            interacoes = self._extrair_interacoes(stdout)
+            comparacoes_valor = self._extrair_comparacoes(stdout)
 
             if stderr:
                 logging.warning(f"⚠️ STDERR capturado na execução {execucao}: {stderr.strip()}")
@@ -87,8 +87,7 @@ class Benchmark:
             mem_maximas.append(max(memoria_usos) if memoria_usos else 0)
             mem_minimas.append(min(memoria_usos) if memoria_usos else 0)
             cpu_medias.append(sum(cpu_usos) / len(cpu_usos) if cpu_usos else 0)
-            interacoes_lista.append(interacoes if interacoes is not None else 0)
-
+            comparacoes.append(comparacoes_valor if comparacoes_valor is not None else 0)
 
         # Gera resultado agregado (médio)
         resultado = {
@@ -101,7 +100,7 @@ class Benchmark:
             "memoria_maxima_media_MB": round(sum(mem_maximas) / num_execucoes, 4) if mem_maximas else 0,
             "memoria_minima_media_MB": round(sum(mem_minimas) / num_execucoes, 4) if mem_minimas else 0,
             "cpu_media_percent": round(sum(cpu_medias) / num_execucoes, 4) if cpu_medias else 0,
-            "interacoes_media": round(sum(interacoes_lista) / num_execucoes, 2) if interacoes_lista else 0,
+            "comparacoes_media": round(sum(comparacoes) / num_execucoes, 2) if comparacoes else 0,
             "processador": self.processador,
         }
 
@@ -124,10 +123,10 @@ class Benchmark:
             return None
 
     # Extrai interações a partir do stdout
-    def _extrair_interacoes(self, stdout):
+    def _extrair_comparacoes(self, stdout):
         linhas = stdout.strip().split("\n")
         for linha in linhas:
-            if "Comparações:" in linha or "Interações:" in linha:
+            if "Comparações:" in linha or "Comparacoes:" in linha:
                 try:
                     return int(''.join(filter(str.isdigit, linha)))
                 except ValueError:

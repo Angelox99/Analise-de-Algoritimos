@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 long long comparacoes = 0;
 
@@ -77,16 +76,11 @@ int main(int argc, char *argv[]) {
     int n;
     int *arr = ler_arquivo(argv[1], &n);
 
-    clock_t inicio = clock();
     comparacoes = 0;
 
     merge_sort(arr, 0, n - 1);
 
-    clock_t fim = clock();
-    double tempo = ((double)(fim - inicio)) / CLOCKS_PER_SEC;
-
     printf("Comparacoes: %lld\n", comparacoes);
-    printf("Tempo (s): %f\n", tempo);
 
     free(arr);
     return 0;

@@ -5,7 +5,7 @@ from tqdm import tqdm
 import os
 
 # Configurações
-algoritmos = []
+algoritmos = ['bubble_sort', 'insertion_sort', 'merge_sort', 'quick_sort']
 entradas = [
     'entrada_50_decrescente.txt',
     'entrada_50_ordenado.txt',
@@ -63,6 +63,14 @@ entradas = [
     'entrada_1000000_random.txt'
 ]
 
+entradas_curtas = [
+    'entrada_50_decrescente.txt',
+    'entrada_50_ordenado.txt',
+    'entrada_50_random.txt',
+    'entrada_100_decrescente.txt',
+    'entrada_100_ordenado.txt',
+    'entrada_100_random.txt',]
+
 # Inicializar Benchmark
 benchmark = Benchmark(
     bin_dir="./algoritmos",
@@ -75,13 +83,13 @@ os.makedirs("./resultados", exist_ok=True)
 csv_path = "./resultados/resultados.csv"
 
 # Calcular total de iterações
-total = len(algoritmos) * len(entradas)
+total = len(algoritmos) * len(entradas_curtas)
 
 # Loop com Barra de Progresso
 print("Iniciando Benchmark...")
 with tqdm(total=total, desc="Benchmark Progress", unit="test") as pbar:
     for algoritmo in algoritmos:
-        for entrada in entradas:
+        for entrada in entradas_curtas:
             #print(f" Executando {algoritmo} com {entrada}")
             resultado = benchmark.run_test(
                 algoritmo=algoritmo,
