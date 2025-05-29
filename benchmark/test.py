@@ -99,10 +99,7 @@ print("Iniciando Benchmark...")
 with tqdm(total=total, desc="Benchmark Progress", unit="test") as pbar:
     for algoritmo in algoritmos:
         for entrada in entradas:
-<<<<<<< HEAD
-=======
             #print(f" Executando {algoritmo} com {entrada}")
->>>>>>> origin/main
             resultado = benchmark.run_test(
                 algoritmo=algoritmo,
                 arquivo_entrada=entrada,
