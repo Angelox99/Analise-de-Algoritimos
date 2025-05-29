@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 // Variável global para contar comparações
 long long comparacoes = 0;
@@ -58,11 +59,11 @@ int main(int argc, char *argv[]) {
     int *arr = ler_arquivo(argv[1], &n);
 
     comparacoes = 0;
-
+    clock_t inicio = clock();
     insertion_sort(arr, n);
-
+    clock_t fim = clock();
     printf("Comparacoes: %lld\n", comparacoes);
-
+    printf("Tempo de execucao: %.6f\n", (double)(fim - inicio) / CLOCKS_PER_SEC);
     free(arr);
     return 0;
 }

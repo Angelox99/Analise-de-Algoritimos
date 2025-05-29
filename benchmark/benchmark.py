@@ -1,20 +1,18 @@
 import subprocess
-import time
 import psutil
 import os
 import logging
 import platform
-
+import re
 
 # Configuração de logging
 logging.basicConfig(
-    filename='benchmark.log',  # Cria arquivo benchmark.log
-    filemode='a',              # Append, não sobrescreve
-    level=logging.INFO,        # Nível mínimo de log
+    filename='benchmark.log',
+    filemode='a',
+    level=logging.INFO,
     format='%(asctime)s | %(levelname)s | %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
-
 
 class Benchmark:
     def __init__(self, bin_dir, entrada_dir):
@@ -32,7 +30,6 @@ class Benchmark:
         entrada_path = os.path.join(self.entrada_dir, arquivo_entrada)
         tamanho_entrada = self._extrair_tamanho_entrada(arquivo_entrada)
 
-        # Dados acumulados para calcular média
         tempos = []
         mem_medias = []
         mem_maximas = []
@@ -42,8 +39,6 @@ class Benchmark:
 
         for execucao in range(1, num_execucoes + 1):
             logging.info(f"➡️ Executando {algoritmo} | Entrada: {arquivo_entrada} | Execução: {execucao}")
-
-            inicio = time.time()
 
             process = subprocess.Popen(
                 [bin_path, entrada_path],
@@ -64,32 +59,27 @@ class Benchmark:
                     break
 
                 try:
-                    mem_info = proc.memory_info().rss / (1024 * 1024)  # Memória MB
-                    cpu = proc.cpu_percent(interval=0.1)               # CPU %
+                    mem_info = proc.memory_info().rss / (1024 * 1024)
+                    cpu = proc.cpu_percent(interval=0.1)
                     memoria_usos.append(mem_info)
                     cpu_usos.append(cpu)
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
                     break
 
-            fim = time.time()
-            tempo_execucao = fim - inicio
-
             stdout, stderr = process.communicate()
 
-            comparacoes_valor = self._extrair_comparacoes(stdout)
+            comparacoes_valor, tempo_execucao = self._extrair_resultados(stdout)
 
             if stderr:
                 logging.warning(f"⚠️ STDERR capturado na execução {execucao}: {stderr.strip()}")
 
-            # Armazena para calculo das médias
-            tempos.append(tempo_execucao)
+            tempos.append(tempo_execucao if tempo_execucao is not None else 0)
             mem_medias.append(sum(memoria_usos) / len(memoria_usos) if memoria_usos else 0)
             mem_maximas.append(max(memoria_usos) if memoria_usos else 0)
             mem_minimas.append(min(memoria_usos) if memoria_usos else 0)
             cpu_medias.append(sum(cpu_usos) / len(cpu_usos) if cpu_usos else 0)
             comparacoes.append(comparacoes_valor if comparacoes_valor is not None else 0)
 
-        # Gera resultado agregado (médio)
         resultado = {
             "algoritmo": algoritmo,
             "entrada": arquivo_entrada,
@@ -107,10 +97,8 @@ class Benchmark:
         logging.info(f"✅ Resultado médio para {algoritmo} | {arquivo_entrada}: {resultado}")
         return resultado
 
-    # Coleta tamanho da entrada baseado no número de linhas
     def _extrair_tamanho_entrada(self, nome_arquivo):
         caminho_arquivo = os.path.join(self.entrada_dir, nome_arquivo)
-
         try:
             with open(caminho_arquivo, 'r') as arquivo:
                 num_linhas = sum(1 for _ in arquivo)
@@ -122,13 +110,15 @@ class Benchmark:
             logging.error(f"❌ Erro ao contar linhas do arquivo {nome_arquivo}: {e}")
             return None
 
-    # Extrai interações a partir do stdout
-    def _extrair_comparacoes(self, stdout):
+    def _extrair_resultados(self, stdout):
+        comparacoes = None
+        tempo_execucao = None
         linhas = stdout.strip().split("\n")
         for linha in linhas:
-            if "Comparações:" in linha or "Comparacoes:" in linha:
-                try:
-                    return int(''.join(filter(str.isdigit, linha)))
-                except ValueError:
-                    continue
-        return None
+            match_comp = re.search(r"Comparacoes?:\s*(\d+)", linha)
+            if match_comp:
+                comparacoes = int(match_comp.group(1))
+            match_tempo = re.search(r"Tempo de execucao:\s*([0-9.]+)", linha)
+            if match_tempo:
+                tempo_execucao = float(match_tempo.group(1))
+        return comparacoes, tempo_execucao

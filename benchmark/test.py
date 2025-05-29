@@ -5,7 +5,7 @@ from tqdm import tqdm
 import os
 
 # Configurações
-algoritmos = ['bubble_sort', 'insertion_sort', 'merge_sort', 'quick_sort']
+algoritmos = ['quick_sort','merge_sort','insertion_sort','bubble_sort']
 entradas = [
     'entrada_50_decrescente.txt',
     'entrada_50_ordenado.txt',
@@ -69,7 +69,17 @@ entradas_curtas = [
     'entrada_50_random.txt',
     'entrada_100_decrescente.txt',
     'entrada_100_ordenado.txt',
-    'entrada_100_random.txt',]
+    'entrada_100_random.txt',
+    'entrada_1000_decrescente.txt',
+    'entrada_1000_ordenado.txt',
+    'entrada_1000_random.txt',
+    'entrada_5000_decrescente.txt',
+    'entrada_5000_ordenado.txt',
+    'entrada_5000_random.txt',
+    'entrada_10000_decrescente.txt',
+    'entrada_10000_ordenado.txt',
+    'entrada_10000_random.txt',
+]
 
 # Inicializar Benchmark
 benchmark = Benchmark(
@@ -83,14 +93,13 @@ os.makedirs("./resultados", exist_ok=True)
 csv_path = "./resultados/resultados.csv"
 
 # Calcular total de iterações
-total = len(algoritmos) * len(entradas_curtas)
+total = len(algoritmos) * len(entradas)
 
 # Loop com Barra de Progresso
 print("Iniciando Benchmark...")
 with tqdm(total=total, desc="Benchmark Progress", unit="test") as pbar:
     for algoritmo in algoritmos:
-        for entrada in entradas_curtas:
-            #print(f" Executando {algoritmo} com {entrada}")
+        for entrada in entradas:
             resultado = benchmark.run_test(
                 algoritmo=algoritmo,
                 arquivo_entrada=entrada,
@@ -98,6 +107,19 @@ with tqdm(total=total, desc="Benchmark Progress", unit="test") as pbar:
             if resultado:
                 resultados.append(resultado)
                 df = pd.DataFrame(resultados)
+                # Converter colunas numéricas para float
+                colunas_numericas = [
+                    "tempo_execucao_medio_s",
+                    "memoria_media_MB",
+                    "memoria_maxima_media_MB",
+                    "memoria_minima_media_MB",
+                    "cpu_media_percent",
+                    "comparacoes_media",
+                    "tamanho_entrada"
+                ]
+                for coluna in colunas_numericas:
+                    if coluna in df.columns:
+                        df[coluna] = pd.to_numeric(df[coluna], errors="coerce")
                 df.to_csv(csv_path, index=False)
             pbar.update(1)
 

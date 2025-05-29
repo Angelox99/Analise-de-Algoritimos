@@ -31,6 +31,9 @@ df["tipo_entrada"] = df["entrada"].apply(extrair_tipo)
 def gerar_grafico(tipo, metric):
     df_filtrado = df[df["tipo_entrada"] == tipo].copy()
 
+    # Garante que a métrica é float (números reais)
+    df_filtrado[metric] = pd.to_numeric(df_filtrado[metric], errors="coerce")
+
     # Adiciona coluna com algoritmo + processador
     df_filtrado["algoritmo_proc"] = df_filtrado["algoritmo"] + " (" + df_filtrado["processador"] + ")"
 
