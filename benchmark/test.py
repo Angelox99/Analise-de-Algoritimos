@@ -1,6 +1,5 @@
 from benchmark import Benchmark
 import pandas as pd
-import plotly.express as px
 from tqdm import tqdm
 import os
 
@@ -83,13 +82,13 @@ os.makedirs("./resultados", exist_ok=True)
 csv_path = "./resultados/resultados.csv"
 
 # Calcular total de iterações
-total = len(algoritmos) * len(entradas_curtas)
+total = len(algoritmos) * len(entradas)
 
 # Loop com Barra de Progresso
 print("Iniciando Benchmark...")
 with tqdm(total=total, desc="Benchmark Progress", unit="test") as pbar:
     for algoritmo in algoritmos:
-        for entrada in entradas_curtas:
+        for entrada in entradas:
             #print(f" Executando {algoritmo} com {entrada}")
             resultado = benchmark.run_test(
                 algoritmo=algoritmo,
