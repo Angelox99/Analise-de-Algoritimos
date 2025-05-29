@@ -32,11 +32,11 @@ Thumbs.db
 
 # ingoras os algoritmos de ordenacao
 bubble_sort
-selection_sort
+quick_sort
 insertion_sort
 merge_sort
 bubble_sort.exe
-selection_sort.exe
+quick_sort.exe
 insertion_sort.exe
 merge_sort.exe
 benchmark.log
