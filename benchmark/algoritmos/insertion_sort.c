@@ -34,12 +34,22 @@ int* ler_arquivo(char *nome_arquivo, int *tamanho) {
 
     int capacidade = 1000;
     int *vetor = malloc(sizeof(int) * capacidade);
+    if (!vetor) {
+        perror("Erro ao alocar memória");
+        exit(1);
+    }
     int valor, count = 0;
 
     while (fscanf(fp, "%d", &valor) == 1) {
         if (count >= capacidade) {
             capacidade *= 2;
-            vetor = realloc(vetor, sizeof(int) * capacidade);
+            int *tmp = realloc(vetor, sizeof(int) * capacidade);
+            if (!tmp) {
+                free(vetor);
+                perror("Erro ao realocar memória");
+                exit(1);
+            }
+            vetor = tmp;
         }
         vetor[count++] = valor;
     }

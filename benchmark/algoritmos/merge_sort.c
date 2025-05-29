@@ -32,18 +32,20 @@ void merge(int *arr, int l, int m, int r) {
     free(R);
 }
 
-// Função recursiva de ordenação
-void merge_sort(int *arr, int l, int r) {
-    if (l < r) {
-        int m = l + (r - l) / 2;
+// Versão iterativa (bottom-up) do Merge Sort
+void merge_sort(int *arr, int n) {
+    for (int curr_size = 1; curr_size < n; curr_size *= 2) {
+        for (int left_start = 0; left_start < n - 1; left_start += 2 * curr_size) {
+            int mid = left_start + curr_size - 1;
+            int right_end = (left_start + 2 * curr_size - 1 < n - 1) ? (left_start + 2 * curr_size - 1) : (n - 1);
 
-        merge_sort(arr, l, m);
-        merge_sort(arr, m + 1, r);
-        merge(arr, l, m, r);
+            if (mid < right_end)
+                merge(arr, left_start, mid, right_end);
+        }
     }
 }
 
-// Leitura do arquivo (pode ficar em utils/ler_arquivo.c depois)
+// Leitura do arquivo
 int* ler_arquivo(char *nome_arquivo, int *tamanho) {
     FILE *fp = fopen(nome_arquivo, "r");
     if (!fp) {
@@ -79,7 +81,7 @@ int main(int argc, char *argv[]) {
 
     comparacoes = 0;
     clock_t inicio = clock();
-    merge_sort(arr, 0, n - 1);
+    merge_sort(arr, n);
     clock_t fim = clock();
     printf("Comparacoes: %lld\n", comparacoes);
     printf("Tempo de execucao: %.6f\n", (double)(fim - inicio) / CLOCKS_PER_SEC);

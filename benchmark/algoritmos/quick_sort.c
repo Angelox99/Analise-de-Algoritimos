@@ -27,16 +27,34 @@ int particionar(int *arr, int baixo, int alto) {
     return i + 1;
 }
 
-// Quick Sort recursivo
+// Quick Sort iterativo com pilha do tamanho correto
 void quick_sort(int *arr, int baixo, int alto) {
-    if (baixo < alto) {
+    int tamanho = alto - baixo + 1;
+    int *pilha = malloc(sizeof(int) * 2 * tamanho); // Pilha com o dobro do tamanho
+
+    int topo = -1;
+    pilha[++topo] = baixo;
+    pilha[++topo] = alto;
+
+    while (topo >= 1) {
+        alto = pilha[topo--];
+        baixo = pilha[topo--];
+
         int pi = particionar(arr, baixo, alto);
-        quick_sort(arr, baixo, pi - 1);
-        quick_sort(arr, pi + 1, alto);
+
+        if (pi - 1 > baixo) {
+            pilha[++topo] = baixo;
+            pilha[++topo] = pi - 1;
+        }
+        if (pi + 1 < alto) {
+            pilha[++topo] = pi + 1;
+            pilha[++topo] = alto;
+        }
     }
+    free(pilha);
 }
 
-// Leitura de arquivo (pode ser modularizado depois)
+// Leitura de arquivo
 int* ler_arquivo(char *nome_arquivo, int *tamanho) {
     FILE *fp = fopen(nome_arquivo, "r");
     if (!fp) {
