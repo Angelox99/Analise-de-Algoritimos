@@ -69,7 +69,6 @@ class Benchmark:
             stdout, stderr = process.communicate()
 
             comparacoes_valor, tempo_execucao = self._extrair_resultados(stdout)
-
             if stderr:
                 logging.warning(f"⚠️ STDERR capturado na execução {execucao}: {stderr.strip()}")
 
@@ -85,12 +84,12 @@ class Benchmark:
             "entrada": arquivo_entrada,
             "tamanho_entrada": tamanho_entrada,
             "num_execucoes": num_execucoes,
-            "tempo_execucao_medio_s": round(sum(tempos) / num_execucoes, 4) if tempos else 0,
-            "memoria_media_MB": round(sum(mem_medias) / num_execucoes, 4) if mem_medias else 0,
-            "memoria_maxima_media_MB": round(sum(mem_maximas) / num_execucoes, 4) if mem_maximas else 0,
-            "memoria_minima_media_MB": round(sum(mem_minimas) / num_execucoes, 4) if mem_minimas else 0,
-            "cpu_media_percent": round(sum(cpu_medias) / num_execucoes, 4) if cpu_medias else 0,
-            "comparacoes_media": round(sum(comparacoes) / num_execucoes, 2) if comparacoes else 0,
+            "tempo_execucao_medio_s": f"{sum(tempos) / num_execucoes:.6f}" if tempos else "0.000000",
+            "memoria_media_MB": f"{sum(mem_medias) / num_execucoes:.6f}" if mem_medias else "0.000000",
+            "memoria_maxima_media_MB": f"{sum(mem_maximas) / num_execucoes:.6f}" if mem_maximas else "0.000000",
+            "memoria_minima_media_MB": f"{sum(mem_minimas) / num_execucoes:.6f}" if mem_minimas else "0.000000",
+            "cpu_media_percent": f"{sum(cpu_medias) / num_execucoes:.6f}" if cpu_medias else "0.000000",
+            "comparacoes_media": f"{sum(comparacoes) / num_execucoes:.6f}" if comparacoes else "0",
             "processador": self.processador,
         }
 
@@ -118,7 +117,7 @@ class Benchmark:
             match_comp = re.search(r"Comparacoes?:\s*(\d+)", linha)
             if match_comp:
                 comparacoes = int(match_comp.group(1))
-            match_tempo = re.search(r"Tempo de execucao:\s*([0-9.]+)", linha)
+            match_tempo = re.search(r"Tempo de execucao:\s*(\d+\.\d{6})", linha)
             if match_tempo:
                 tempo_execucao = float(match_tempo.group(1))
         return comparacoes, tempo_execucao
