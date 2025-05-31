@@ -8,7 +8,15 @@ import dash_bootstrap_components as dbc
 # ==============================
 
 # Carregar o CSV de resultados (certifique-se de que o arquivo de resultados está atualizado)
-df = pd.read_csv("./resultados/resultados.csv")
+df_arm = pd.read_csv("./resultados/resultados(arm).csv")
+df_x86 = pd.read_csv("./resultados/resultados(x86).csv")
+
+# muda o nome do processador
+df_arm["processador"] = "arm(M1)"
+df_x86["processador"] = "x86(i7-14700KF)"
+
+# Concatenar os DataFrames
+df = pd.concat([df_arm, df_x86], ignore_index=True)
 
 # Extração do tipo de entrada (Random, Decrescente, Ordenado)
 def extrair_tipo(entrada):
